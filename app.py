@@ -69,7 +69,7 @@ class PhishingHandler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 10000))
     server_address = ('0.0.0.0', port)
     httpd = http.server.HTTPServer(server_address, PhishingHandler)
     print(f"==================================================")
