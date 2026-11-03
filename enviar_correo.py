@@ -8,8 +8,8 @@ from email.mime.multipart import MIMEMultipart
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
 # CONFIGURACION: Tu correo y contraseña de aplicacion de Gmail
-remitente = "marlonmoncayo7474@gmail.com"
-password = "jpwy hpdh lnuy tpaw"
+remitente = "uniputumayosoporte@gmail.com"
+password = "bicm wlgr gclb fuwq"
 
 # Enlace fijo de tu despliegue limpio en Render
 ENLACE_RENDER = "https://sigedin-uniputumayo.onrender.com"
